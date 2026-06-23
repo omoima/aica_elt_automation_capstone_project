@@ -1,0 +1,10 @@
+data/
+archives/
+landing/
+*.csv
+*.xlsx
+*.parquet
+*.delta
+.DS_Store
+__pycache__/
+.databricks/
