@@ -7,12 +7,16 @@
 
 from pyspark.sql import Row, functions as F
 
-BASE_PATH = "dbfs:/FileStore/online_retail_capstone"
-DATABASE = "online_retail_capstone"
+CATALOG = "workspace"
+SCHEMA = "online_retail_capstone"
+VOLUME = "files"
+DATABASE = f"{CATALOG}.{SCHEMA}"
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
 ARCHIVE_PATH = f"{BASE_PATH}/archives"
 LANDING_PATH = f"{BASE_PATH}/landing"
 
-spark.sql(f"USE {DATABASE}")
+spark.sql(f"USE CATALOG {CATALOG}")
+spark.sql(f"USE SCHEMA {SCHEMA}")
 dbutils.fs.mkdirs(ARCHIVE_PATH)
 dbutils.fs.mkdirs(LANDING_PATH)
 
@@ -49,4 +53,3 @@ log_df = spark.createDataFrame(
 log_df.write.format("delta").mode("append").saveAsTable(f"{DATABASE}.pipeline_file_log")
 
 print(f"Moved {next_file.path} to {target_path}")
-

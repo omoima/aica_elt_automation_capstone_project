@@ -7,11 +7,15 @@
 
 from pyspark.sql import Row, functions as F
 
-BASE_PATH = "dbfs:/FileStore/online_retail_capstone"
-DATABASE = "online_retail_capstone"
-SILVER_PATH = f"{BASE_PATH}/delta/silver_online_retail"
+CATALOG = "workspace"
+SCHEMA = "online_retail_capstone"
+VOLUME = "files"
+DATABASE = f"{CATALOG}.{SCHEMA}"
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
+SILVER_TABLE = f"{DATABASE}.silver_online_retail"
 
-spark.sql(f"USE {DATABASE}")
+spark.sql(f"USE CATALOG {CATALOG}")
+spark.sql(f"USE SCHEMA {SCHEMA}")
 
 bronze_files = {
     row.file_name
@@ -86,21 +90,15 @@ silver_df = (
     )
 )
 
-silver_df.write.format("delta").mode("append").option("mergeSchema", "true").save(SILVER_PATH)
-
-spark.sql(
-    f"""
-    CREATE TABLE IF NOT EXISTS {DATABASE}.silver_online_retail
-    USING DELTA
-    LOCATION '{SILVER_PATH}'
-    """
+silver_df.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable(
+    SILVER_TABLE
 )
 
 log_rows = [
     Row(
         file_name=file_name,
         source_path=source_path,
-        target_path=SILVER_PATH,
+        target_path=SILVER_TABLE,
         stage="silver",
     )
     for file_name, source_path in zip(new_file_names, new_source_paths)
@@ -112,4 +110,3 @@ spark.createDataFrame(log_rows).withColumn("processed_at", F.current_timestamp()
 
 row_count = silver_df.count()
 print(f"Silver transformation complete. files={len(new_file_names)} rows={row_count}")
-

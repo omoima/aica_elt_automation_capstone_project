@@ -7,11 +7,14 @@
 
 from pyspark.sql import functions as F
 
-BASE_PATH = "dbfs:/FileStore/online_retail_capstone"
-DATABASE = "online_retail_capstone"
-GOLD_PATH = f"{BASE_PATH}/delta/gold"
+CATALOG = "workspace"
+SCHEMA = "online_retail_capstone"
+VOLUME = "files"
+DATABASE = f"{CATALOG}.{SCHEMA}"
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
 
-spark.sql(f"USE {DATABASE}")
+spark.sql(f"USE CATALOG {CATALOG}")
+spark.sql(f"USE SCHEMA {SCHEMA}")
 
 silver_df = spark.table(f"{DATABASE}.silver_online_retail")
 
@@ -66,17 +69,10 @@ gold_tables = {
 }
 
 for table_name, table_df in gold_tables.items():
-    table_path = f"{GOLD_PATH}/{table_name}"
-    table_df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").save(table_path)
-    spark.sql(
-        f"""
-        CREATE TABLE IF NOT EXISTS {DATABASE}.{table_name}
-        USING DELTA
-        LOCATION '{table_path}'
-        """
+    full_table_name = f"{DATABASE}.{table_name}"
+    table_df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(
+        full_table_name
     )
-    spark.sql(f"REFRESH TABLE {DATABASE}.{table_name}")
-    print(f"Updated {DATABASE}.{table_name}: rows={table_df.count()}")
+    print(f"Updated {full_table_name}: rows={table_df.count()}")
 
 print("Gold aggregation complete.")
-

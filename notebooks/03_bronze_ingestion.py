@@ -7,12 +7,16 @@
 
 from pyspark.sql import Row, functions as F
 
-BASE_PATH = "dbfs:/FileStore/online_retail_capstone"
-DATABASE = "online_retail_capstone"
+CATALOG = "workspace"
+SCHEMA = "online_retail_capstone"
+VOLUME = "files"
+DATABASE = f"{CATALOG}.{SCHEMA}"
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
 LANDING_PATH = f"{BASE_PATH}/landing"
-BRONZE_PATH = f"{BASE_PATH}/delta/bronze_online_retail"
+BRONZE_TABLE = f"{DATABASE}.bronze_online_retail"
 
-spark.sql(f"USE {DATABASE}")
+spark.sql(f"USE CATALOG {CATALOG}")
+spark.sql(f"USE SCHEMA {SCHEMA}")
 
 landing_files = sorted(
     [
@@ -45,25 +49,19 @@ bronze_df = (
     spark.read.option("header", True)
     .option("inferSchema", True)
     .csv(paths)
-    .withColumn("_source_file", F.input_file_name())
+    .withColumn("_source_file", F.col("_metadata.file_path"))
     .withColumn("_ingested_at", F.current_timestamp())
 )
 
-bronze_df.write.format("delta").mode("append").option("mergeSchema", "true").save(BRONZE_PATH)
-
-spark.sql(
-    f"""
-    CREATE TABLE IF NOT EXISTS {DATABASE}.bronze_online_retail
-    USING DELTA
-    LOCATION '{BRONZE_PATH}'
-    """
+bronze_df.write.format("delta").mode("append").option("mergeSchema", "true").saveAsTable(
+    BRONZE_TABLE
 )
 
 log_rows = [
     Row(
         file_name=file.name,
         source_path=file.path,
-        target_path=BRONZE_PATH,
+        target_path=BRONZE_TABLE,
         stage="bronze",
     )
     for file in new_files
@@ -75,4 +73,3 @@ spark.createDataFrame(log_rows).withColumn("processed_at", F.current_timestamp()
 
 row_count = bronze_df.count()
 print(f"Bronze ingestion complete. files={len(new_files)} rows={row_count}")
-

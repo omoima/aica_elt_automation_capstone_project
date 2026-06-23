@@ -9,28 +9,28 @@
     {
       "task_key": "hourly_file_arrival",
       "notebook_task": {
-        "notebook_path": "/Workspace/online-retail-capstone/notebooks/02_hourly_file_arrival"
+        "notebook_path": "/Workspace/Users/oarabilemoima@gmail.com/online-retail-capstone/notebooks/02_hourly_file_arrival"
       }
     },
     {
       "task_key": "bronze_ingestion",
       "depends_on": [{ "task_key": "hourly_file_arrival" }],
       "notebook_task": {
-        "notebook_path": "/Workspace/online-retail-capstone/notebooks/03_bronze_ingestion"
+        "notebook_path": "/Workspace/Users/oarabilemoima@gmail.com/online-retail-capstone/notebooks/03_bronze_ingestion"
       }
     },
     {
       "task_key": "silver_transform",
       "depends_on": [{ "task_key": "bronze_ingestion" }],
       "notebook_task": {
-        "notebook_path": "/Workspace/online-retail-capstone/notebooks/04_silver_transform"
+        "notebook_path": "/Workspace/Users/oarabilemoima@gmail.com/online-retail-capstone/notebooks/04_silver_transform"
       }
     },
     {
       "task_key": "gold_aggregations",
       "depends_on": [{ "task_key": "silver_transform" }],
       "notebook_task": {
-        "notebook_path": "/Workspace/online-retail-capstone/notebooks/05_gold_aggregations"
+        "notebook_path": "/Workspace/Users/oarabilemoima@gmail.com/online-retail-capstone/notebooks/05_gold_aggregations"
       }
     }
   ]

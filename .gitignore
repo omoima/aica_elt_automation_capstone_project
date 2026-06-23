@@ -3,6 +3,7 @@ archives/
 landing/
 *.csv
 *.xlsx
+*.zip
 *.parquet
 *.delta
 .DS_Store

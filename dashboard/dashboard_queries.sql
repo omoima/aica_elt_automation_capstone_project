@@ -4,7 +4,7 @@ SELECT
   total_revenue,
   total_invoices,
   total_units
-FROM online_retail_capstone.gold_weekly_revenue
+FROM workspace.online_retail_capstone.gold_weekly_revenue
 ORDER BY week_start;
 
 -- Top 5 selling products by revenue
@@ -13,7 +13,7 @@ SELECT
   description,
   total_revenue,
   total_units
-FROM online_retail_capstone.gold_top_products
+FROM workspace.online_retail_capstone.gold_top_products
 ORDER BY total_revenue DESC;
 
 -- Top 5 customers by spend
@@ -22,7 +22,7 @@ SELECT
   total_revenue,
   total_invoices,
   total_units
-FROM online_retail_capstone.gold_top_customers
+FROM workspace.online_retail_capstone.gold_top_customers
 ORDER BY total_revenue DESC;
 
 -- Total revenue by country
@@ -31,6 +31,5 @@ SELECT
   total_revenue,
   total_invoices,
   total_units
-FROM online_retail_capstone.gold_revenue_by_country
+FROM workspace.online_retail_capstone.gold_revenue_by_country
 ORDER BY total_revenue DESC;
-

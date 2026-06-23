@@ -5,32 +5,29 @@
 
 # COMMAND ----------
 
-from pyspark.sql import functions as F
-
-BASE_PATH = "dbfs:/FileStore/online_retail_capstone"
-DATABASE = "online_retail_capstone"
+CATALOG = "workspace"
+SCHEMA = "online_retail_capstone"
+VOLUME = "files"
+DATABASE = f"{CATALOG}.{SCHEMA}"
+BASE_PATH = f"/Volumes/{CATALOG}/{SCHEMA}/{VOLUME}"
 
 ARCHIVE_PATH = f"{BASE_PATH}/archives"
 LANDING_PATH = f"{BASE_PATH}/landing"
 RAW_PATH = f"{BASE_PATH}/raw"
-BRONZE_PATH = f"{BASE_PATH}/delta/bronze_online_retail"
-SILVER_PATH = f"{BASE_PATH}/delta/silver_online_retail"
-GOLD_PATH = f"{BASE_PATH}/delta/gold"
 CHECKPOINT_PATH = f"{BASE_PATH}/checkpoints"
+
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS {CATALOG}.{SCHEMA}")
+spark.sql(f"CREATE VOLUME IF NOT EXISTS {DATABASE}.{VOLUME}")
+spark.sql(f"USE CATALOG {CATALOG}")
+spark.sql(f"USE SCHEMA {SCHEMA}")
 
 for path in [
     ARCHIVE_PATH,
     LANDING_PATH,
     RAW_PATH,
-    BRONZE_PATH,
-    SILVER_PATH,
-    GOLD_PATH,
     CHECKPOINT_PATH,
 ]:
     dbutils.fs.mkdirs(path)
-
-spark.sql(f"CREATE DATABASE IF NOT EXISTS {DATABASE}")
-spark.sql(f"USE {DATABASE}")
 
 spark.sql(
     f"""
@@ -42,7 +39,6 @@ spark.sql(
       processed_at TIMESTAMP
     )
     USING DELTA
-    LOCATION '{BASE_PATH}/delta/pipeline_file_log'
     """
 )
 
@@ -57,10 +53,8 @@ spark.sql(
       processed_at TIMESTAMP
     )
     USING DELTA
-    LOCATION '{BASE_PATH}/delta/pipeline_run_log'
     """
 )
 
-print(f"Database ready: {DATABASE}")
-print(f"Base path ready: {BASE_PATH}")
-
+print(f"Schema ready: {DATABASE}")
+print(f"Volume path ready: {BASE_PATH}")
